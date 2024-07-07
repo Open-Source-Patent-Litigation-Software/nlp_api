@@ -44,7 +44,7 @@ class NaturalLanguageProcessing:
 
         return max_similarity
 
-    def run_similarity_max_calc(self, metric: str, data: str, type: bool):
+    def run_similarity_max_calc(self, metric: str, data: str):
         """Run the similarity calculation based on the metric provided"""
 
         cleaned_data = self.remove_stopwords(data)
