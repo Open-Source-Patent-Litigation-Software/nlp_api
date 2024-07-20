@@ -4,7 +4,7 @@ from nlp.nlp import NaturalLanguageProcessing, getNLP
 
 router = APIRouter()
 
-@router.post("/citation", response_model=CitationsOutput)
+@router.post("/citation")
 def citation(input_data: CitationsInput, nlp: NaturalLanguageProcessing = Depends(getNLP)):
     # generate the citations for these metrics
     citations = nlp.GenerateCitations(input_data.metrics, input_data.abstract, input_data.description, input_data.claims)
@@ -27,6 +27,7 @@ def score(input_data: ScoreInput, nlp: NaturalLanguageProcessing = Depends(getNL
 @router.post("/rankScores", response_model=RankScoresOuput)
 def rankScores(input_data: RankScoresInput, nlp: NaturalLanguageProcessing = Depends(getNLP)):
     # generate similarity scores for metrics
+    print("started request")
     scores = []
 
     for text in input_data.texts:
@@ -36,4 +37,10 @@ def rankScores(input_data: RankScoresInput, nlp: NaturalLanguageProcessing = Dep
     response = {
         "scores": scores,
     }
+
+    print("finished request")
     return response
+
+@router.post("/similarCPC", response_model=RankScoresOuput)
+def SimilarCPC(input_data: RankScoresInput, nlp: NaturalLanguageProcessing = Depends(getNLP)):
+    print("hello world")

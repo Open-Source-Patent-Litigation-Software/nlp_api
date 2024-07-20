@@ -15,4 +15,4 @@ if __name__ == "__main__":
     cert_file = os.path.join(os.path.dirname(__file__), '..', 'cert.pem')
     key_file = os.path.join(os.path.dirname(__file__), '..', 'key.pem')
     
-    uvicorn.run(app, host="0.0.0.0", port=443, ssl_keyfile=key_file, ssl_certfile=cert_file)
+    uvicorn.run(app, host="0.0.0.0", port=12345)

@@ -20,11 +20,16 @@ class CitationsInput(BaseModel):
     claims: str
     metrics: list[str]
 
+class Quote(BaseModel):
+    before: str
+    highlight: str
+    after: str
+
 class Citation(BaseModel):
     metric: str
-    description: list[str]
-    abstract: list[str]
-    claims: list[str]
+    description: list[Quote]
+    abstract: list[Quote]
+    claims: list[Quote]
 
 class CitationsOutput(BaseModel):
     data: list[Citation]

@@ -1,3 +1,4 @@
+from schemas.validators import Citation, CitationsOutput, Quote
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
@@ -45,10 +46,16 @@ class NaturalLanguageProcessing:
     def __get_citations(self, metric_embedding, section_embeddings, sentences):
         """Get sentences from sections that exceed the similarity threshold"""
         citations = [
-            sentence for similarity, sentence in zip(cosine_similarity([metric_embedding], section_embeddings)[0], sentences)
+            (similarity, sentence) for similarity, sentence in zip(cosine_similarity([metric_embedding], section_embeddings)[0], sentences)
             if similarity > self.threshold
         ]
         return list(set(citations))  # Remove duplicates
+
+    def __extract_quotes(self, sentences: list[str], highlighted: str):
+        index = sentences.index(highlighted)
+        before = sentences[index - 1] if index - 1 >= 0 else ""
+        after = sentences[index + 1] if index + 1 < len(sentences) else ""
+        return Quote(before=before, highlight=highlighted, after=after)
 
     def GenerateCitations(self, metrics: list[str], abstract: str, description: str, claims: str):
         """Generate citations based on metrics and patent sections"""
@@ -62,19 +69,32 @@ class NaturalLanguageProcessing:
         # Generate embeddings for the sections
         embedded_abstract, embedded_claims, embedded_description = self.__get_section_embeddings(abstract, claims, description)
 
-        citations_list = []
+        citations = {}
 
         # Process citations for each metric
         for metric, embedded_metric in zip(metrics, embedded_metrics):
-            citations_dict = {
-                "metric": metric,
-                "abstract": self.__get_citations(embedded_metric, embedded_abstract, abstract_sentences),
-                "claims": self.__get_citations(embedded_metric, embedded_claims, claims_sentences),
-                "description": self.__get_citations(embedded_metric, embedded_description, description_sentences)
-            }
-            citations_list.append(citations_dict)
+            abstract_citations = [
+                self.__extract_quotes(abstract_sentences, citation)
+                for _, citation in self.__get_citations(embedded_metric, embedded_abstract, abstract_sentences)
+            ]
+            claims_citations = [
+                self.__extract_quotes(claims_sentences, citation)
+                for _, citation in self.__get_citations(embedded_metric, embedded_claims, claims_sentences)
+            ]
+            description_citations = [
+                self.__extract_quotes(description_sentences, citation)
+                for _, citation in self.__get_citations(embedded_metric, embedded_description, description_sentences)
+            ]
 
-        return citations_list
+            citation = Citation(
+                metric=metric,
+                abstract=abstract_citations,
+                claims=claims_citations,
+                description=description_citations
+            )
+            citations[metric] = citation
+
+        return citations
 
     def generateSimilarityScore(self, metrics, text):
         """Given a list of metrics and a text (combined abstract + claims), calculate the similarity score for each metric."""
