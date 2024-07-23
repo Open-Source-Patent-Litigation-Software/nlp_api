@@ -9,7 +9,8 @@ class ScoreOutput(BaseModel):
 
 class RankScoresInput(BaseModel):
     metrics: list[str]
-    texts: list[str]
+    claims: list[str]
+    abstracts: list[str]
 
 class RankScoresOuput(BaseModel):
     scores: list[list[float]]

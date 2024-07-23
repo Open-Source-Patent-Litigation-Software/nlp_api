@@ -27,10 +27,12 @@ def score(input_data: ScoreInput, nlp: NaturalLanguageProcessing = Depends(getNL
 @router.post("/rankScores", response_model=RankScoresOuput)
 def rankScores(input_data: RankScoresInput, nlp: NaturalLanguageProcessing = Depends(getNLP)):
     # generate similarity scores for metrics
-    print("started request")
-    scores = []
+    texts = []
 
-    for text in input_data.texts:
+    for index in range(len(input_data.abstracts)):
+        texts.append(input_data.abstracts[index] + '\n' + input_data.claims[index])
+    scores = []
+    for text in texts:
         score = nlp.generateSimilarityScore(input_data.metrics, text)
         scores.append(score)
 

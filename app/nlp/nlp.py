@@ -29,6 +29,12 @@ class NaturalLanguageProcessing:
         sentences = re.split(r"(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?|\!|\;)\s", text)
         sentences = [sentence.strip() for sentence in sentences if sentence]
         return sentences
+    
+    def __split_into_paragraphs(self, text: str) -> list:
+        """Split text into paragraphs using regular expressions."""
+        paragraphs = re.split(r'\n{2,}', text)
+        paragraphs = [paragraph.strip() for paragraph in paragraphs if paragraph]
+        return paragraphs
 
     def __embed_texts(self, texts: list):
         """Embed a list of texts into numerical vectors using the sentence transformer model"""
@@ -98,9 +104,11 @@ class NaturalLanguageProcessing:
 
     def generateSimilarityScore(self, metrics, text):
         """Given a list of metrics and a text (combined abstract + claims), calculate the similarity score for each metric."""
-        cleaned_text = self.__remove_stopwords(text)
-        sentences = self.__split_into_sentences(cleaned_text)
-        embedded_text = self.__embed_texts(sentences)
+        paragraphs = self.__split_into_sentences(text)
+        cleanedParagraphs = []
+        for paragraph in paragraphs:
+            cleanedParagraphs.append(self.__remove_stopwords(paragraph))
+        embedded_text = self.__embed_texts(cleanedParagraphs)
 
         similarity_scores = []
 
