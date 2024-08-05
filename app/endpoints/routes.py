@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Depends
-from schemas.validators import CitationsInput, CitationsOutput, ScoreInput, ScoreOutput, RankScoresOuput, RankScoresInput
+from utils.validators import CitationsInput, ScoreInput, ScoreOutput, RankScoresOuput, RankScoresInput
 from nlp.nlp import NaturalLanguageProcessing, getNLP
+from utils.auth import get_api_key
 
 router = APIRouter()
 
-@router.post("/citation")
+@router.post("/citation", dependencies=[Depends(get_api_key)])
 def citation(input_data: CitationsInput, nlp: NaturalLanguageProcessing = Depends(getNLP)):
     # generate the citations for these metrics
     citations = nlp.GenerateCitations(input_data.metrics, input_data.abstract, input_data.description, input_data.claims)
@@ -14,7 +15,7 @@ def citation(input_data: CitationsInput, nlp: NaturalLanguageProcessing = Depend
     }
     return response
 
-@router.post("/score", response_model=ScoreOutput)
+@router.post("/score", response_model=ScoreOutput, dependencies=[Depends(get_api_key)])
 def score(input_data: ScoreInput, nlp: NaturalLanguageProcessing = Depends(getNLP)):
     # generate similarity scores for metrics
     scores = nlp.generateSimilarityScore(input_data.metrics, input_data.text)
@@ -24,7 +25,7 @@ def score(input_data: ScoreInput, nlp: NaturalLanguageProcessing = Depends(getNL
     }
     return response
 
-@router.post("/rankScores", response_model=RankScoresOuput)
+@router.post("/rankScores", response_model=RankScoresOuput, dependencies=[Depends(get_api_key)])
 def rankScores(input_data: RankScoresInput, nlp: NaturalLanguageProcessing = Depends(getNLP)):
     # generate similarity scores for metrics
     texts = []
@@ -43,6 +44,6 @@ def rankScores(input_data: RankScoresInput, nlp: NaturalLanguageProcessing = Dep
     print("finished request")
     return response
 
-@router.post("/similarCPC", response_model=RankScoresOuput)
+@router.post("/similarCPC", response_model=RankScoresOuput, dependencies=[Depends(get_api_key)])
 def SimilarCPC(input_data: RankScoresInput, nlp: NaturalLanguageProcessing = Depends(getNLP)):
     print("hello world")

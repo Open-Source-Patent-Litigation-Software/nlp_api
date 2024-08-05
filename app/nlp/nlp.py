@@ -1,4 +1,4 @@
-from schemas.validators import Citation, CitationsOutput, Quote
+from utils.validators import Citation, CitationsOutput, Quote
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
